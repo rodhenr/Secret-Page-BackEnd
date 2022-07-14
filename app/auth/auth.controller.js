@@ -1,18 +1,21 @@
 const User = require("../user/UserModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 
 const register = async (req, res) => {
   const { email, password, username } = req.body;
+  
   if (!email || !password || !username)
-    return res.status(200).send("Informações faltando!");
+    return res.status(200).send({ mensagem: "Informações faltando!" });
 
   try {
     const duplicatedUser = await User.findOne({
       $or: [{ email }, { email }],
     });
 
-    if (duplicatedUser) return res.status(200).json("Usuário já cadastrado");
+    if (duplicatedUser)
+      return res.status(200).send({ mensagem: "Usuário já cadastrado" });
 
     const passwordHashed = await bcrypt.hash(password, 10);
 
@@ -22,35 +25,38 @@ const register = async (req, res) => {
       email,
     });
 
-    res.status(200).json("Usuário cadastrado com sucesso");
+    res.status(200).send({ mensagem: "Usuário cadastrado com sucesso" });
   } catch (err) {
-    res.status(500).send("Ocorreu um problema no servidor...");
+    res.status(500).send({ mensagem: "Ocorreu um problema no servidor..." });
   }
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) return res.status(200).send("Informações faltando!");
+  if (!email || !password)
+    return res.status(200).send({ mensagem: "Informações faltando!" });
 
   try {
     const user = await User.findOne({
       email,
     });
 
-    if (!user) return res.status(401).json("Credenciais inválidas");
+    if (!user)
+      return res.status(401).send({ mensagem: "Credenciais inválidas" });
 
     const passwordCheck = await bcrypt.compare(password, user.password);
 
-    if (!passwordCheck) return res.status(401).json("Credenciais inválidas");
+    if (!passwordCheck)
+      return res.status(401).send({ mensagem: "Credenciais inválidas" });
 
     const username = user.username;
 
-    const acessToken = jwt.sign({ username }, "umachavesecreta", {
+    const accessToken = jwt.sign({ username }, process.env.KEY_TOKEN, {
       expiresIn: "10m",
     });
 
-    const refreshToken = jwt.sign({ username }, "umachavesecretarefresh", {
+    const refreshToken = jwt.sign({ username }, process.env.KEY_REFRESH_TOKEN, {
       expiresIn: "15m",
     });
 
@@ -61,9 +67,9 @@ const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.json({ acessToken });
+    res.json({ accessToken });
   } catch (err) {
-    res.status(500).send("Ocorreu um problema no servidor...");
+    res.status(500).send({ mensagem: "Ocorreu um problema no servidor..." });
   }
 };
 
