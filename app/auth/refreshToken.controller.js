@@ -15,7 +15,7 @@ const atualizarToken = (req, res) => {
 
     const { username } = decoded;
     const accessToken = jwt.sign({ username }, process.env.KEY_TOKEN, {
-      expiresIn: "10s",
+      expiresIn: "10m",
     });
     const refreshToken = jwt.sign({ username }, process.env.KEY_REFRESH_TOKEN, {
       expiresIn: "15m",

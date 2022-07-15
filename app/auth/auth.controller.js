@@ -6,16 +6,13 @@ require("dotenv").config();
 const register = async (req, res) => {
   const { email, password, username } = req.body;
 
-  if (!email || !password || !username)
-    return res.status(200).send({ mensagem: "Informações faltando!" });
-
   try {
     const duplicatedUser = await User.findOne({
       $or: [{ email }, { email }],
     });
 
     if (duplicatedUser)
-      return res.status(200).send({ mensagem: "Usuário já cadastrado" });
+      return res.status(409).send({ mensagem: "Usuário já cadastrado" });
 
     const passwordHashed = await bcrypt.hash(password, 10);
 
@@ -50,7 +47,7 @@ const login = async (req, res) => {
     const username = user.username;
 
     const accessToken = jwt.sign({ username }, process.env.KEY_TOKEN, {
-      expiresIn: "5s",
+      expiresIn: "10m",
     });
 
     const refreshToken = jwt.sign({ username }, process.env.KEY_REFRESH_TOKEN, {
