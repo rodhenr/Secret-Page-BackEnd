@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 const routesAuth = require("./app/auth/auth.routes");
 const routesSecret = require("./app/secret/secret.routes");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const app = express();
 const port = 8080;
 
+app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

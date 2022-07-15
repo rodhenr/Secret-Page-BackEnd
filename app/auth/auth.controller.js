@@ -5,7 +5,7 @@ require("dotenv").config();
 
 const register = async (req, res) => {
   const { email, password, username } = req.body;
-  
+
   if (!email || !password || !username)
     return res.status(200).send({ mensagem: "Informações faltando!" });
 
@@ -34,26 +34,23 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password)
-    return res.status(200).send({ mensagem: "Informações faltando!" });
+  if (!email || !password) return res.status(401).send("Informações faltando!");
 
   try {
     const user = await User.findOne({
       email,
     });
 
-    if (!user)
-      return res.status(401).send({ mensagem: "Credenciais inválidas" });
+    if (!user) return res.status(401).send("Credenciais inválidas");
 
     const passwordCheck = await bcrypt.compare(password, user.password);
 
-    if (!passwordCheck)
-      return res.status(401).send({ mensagem: "Credenciais inválidas" });
+    if (!passwordCheck) return res.status(401).send("Credenciais inválidas");
 
     const username = user.username;
 
     const accessToken = jwt.sign({ username }, process.env.KEY_TOKEN, {
-      expiresIn: "10m",
+      expiresIn: "5s",
     });
 
     const refreshToken = jwt.sign({ username }, process.env.KEY_REFRESH_TOKEN, {
@@ -69,7 +66,7 @@ const login = async (req, res) => {
 
     res.json({ accessToken });
   } catch (err) {
-    res.status(500).send({ mensagem: "Ocorreu um problema no servidor..." });
+    res.status(500).send("Ocorreu um problema no servidor...");
   }
 };
 

@@ -1,5 +1,5 @@
 const secret = (req, res) => {
-  res.send("Hello world");
+  res.status(200).send("Hello world");
 };
 
 module.exports = { secret };
