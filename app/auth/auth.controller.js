@@ -8,7 +8,7 @@ const register = async (req, res) => {
 
   try {
     const duplicatedUser = await User.findOne({
-      $or: [{ email }, { email }],
+      $or: [{ email }, { username }],
     });
 
     if (duplicatedUser)
